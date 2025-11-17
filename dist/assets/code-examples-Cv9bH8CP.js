@@ -1,0 +1,657 @@
+import{j as n}from"./index-BQaKkhZN.js";function t(r){const e={a:"a",code:"code",h1:"h1",h2:"h2",h3:"h3",li:"li",p:"p",pre:"pre",span:"span",ul:"ul",...r.components};return n.jsxs(n.Fragment,{children:[n.jsxs(e.h1,{id:"代码示例集合",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#代码示例集合",children:n.jsx(e.span,{className:"icon icon-link"})}),"代码示例集合"]}),`
+`,n.jsx(e.p,{children:"本章节提供了多种编程语言的实用代码示例，展示如何使用 Claude Code 来编写高质量的代码。这些示例涵盖了常见的编程任务和最佳实践。"}),`
+`,n.jsxs(e.h2,{id:"javascripttypescript-示例",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#javascripttypescript-示例",children:n.jsx(e.span,{className:"icon icon-link"})}),"JavaScript/TypeScript 示例"]}),`
+`,n.jsxs(e.h3,{id:"示例-1异步数据获取和错误处理",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#示例-1异步数据获取和错误处理",children:n.jsx(e.span,{className:"icon icon-link"})}),"示例 1：异步数据获取和错误处理"]}),`
+`,n.jsx(e.pre,{children:n.jsx(e.code,{className:"language-javascript",children:`// 使用 async/await 的现代异步编程方式
+async function fetchUserData(userId) {
+  try {
+    // 验证输入
+    if (!userId || typeof userId !== 'string') {
+      throw new Error('Invalid userId');
+    }
+
+    // 获取用户数据
+    const response = await fetch(\`/api/users/\${userId}\`);
+    
+    // 检查响应状态
+    if (!response.ok) {
+      throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+
+    const data = await response.json();
+    
+    // 验证返回数据
+    if (!data || !data.id) {
+      throw new Error('Invalid user data');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch user data:', error);
+    // 返回默认值或重新抛出错误
+    throw error;
+  }
+}
+
+// 使用示例
+async function main() {
+  try {
+    const user = await fetchUserData('user123');
+    console.log('User:', user);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+main();
+`})}),`
+`,n.jsxs(e.h3,{id:"示例-2react-组件---用户列表",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#示例-2react-组件---用户列表",children:n.jsx(e.span,{className:"icon icon-link"})}),"示例 2：React 组件 - 用户列表"]}),`
+`,n.jsx(e.pre,{children:n.jsx(e.code,{className:"language-typescript",children:`import React, { useState, useEffect } from 'react';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
+interface UserListProps {
+  onUserSelect?: (user: User) => void;
+}
+
+export const UserList: React.FC<UserListProps> = ({ onUserSelect }) => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // 获取用户列表
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/users');
+        if (!response.ok) throw new Error('Failed to fetch users');
+        const data = await response.json();
+        setUsers(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  // 过滤用户
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) return <div className="p-4">加载中...</div>;
+  if (error) return <div className="p-4 text-red-600">错误: {error}</div>;
+
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-4">用户列表</h2>
+      
+      {/* 搜索框 */}
+      <input
+        type="text"
+        placeholder="搜索用户..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full px-4 py-2 border rounded mb-4"
+      />
+
+      {/* 用户列表 */}
+      <div className="space-y-2">
+        {filteredUsers.length > 0 ? (
+          filteredUsers.map(user => (
+            <div
+              key={user.id}
+              onClick={() => onUserSelect?.(user)}
+              className="p-3 border rounded hover:bg-gray-100 cursor-pointer"
+            >
+              <div className="font-semibold">{user.name}</div>
+              <div className="text-sm text-gray-600">{user.email}</div>
+            </div>
+          ))
+        ) : (
+          <div className="text-gray-500">未找到匹配的用户</div>
+        )}
+      </div>
+    </div>
+  );
+};
+`})}),`
+`,n.jsxs(e.h2,{id:"python-示例",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#python-示例",children:n.jsx(e.span,{className:"icon icon-link"})}),"Python 示例"]}),`
+`,n.jsxs(e.h3,{id:"示例-1数据处理和分析",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#示例-1数据处理和分析",children:n.jsx(e.span,{className:"icon icon-link"})}),"示例 1：数据处理和分析"]}),`
+`,n.jsx(e.pre,{children:n.jsx(e.code,{className:"language-python",children:`import json
+from typing import List, Dict, Any
+from datetime import datetime
+
+class DataProcessor:
+    """数据处理类，用于处理和分析数据"""
+    
+    def __init__(self, data: List[Dict[str, Any]]):
+        """
+        初始化数据处理器
+        
+        Args:
+            data: 数据列表
+        """
+        self.data = data
+        self.processed_data = []
+    
+    def filter_by_date_range(self, start_date: str, end_date: str) -> List[Dict]:
+        """
+        按日期范围过滤数据
+        
+        Args:
+            start_date: 开始日期 (YYYY-MM-DD)
+            end_date: 结束日期 (YYYY-MM-DD)
+        
+        Returns:
+            过滤后的数据列表
+        """
+        try:
+            start = datetime.strptime(start_date, '%Y-%m-%d')
+            end = datetime.strptime(end_date, '%Y-%m-%d')
+            
+            filtered = [
+                item for item in self.data
+                if start <= datetime.strptime(item['date'], '%Y-%m-%d') <= end
+            ]
+            return filtered
+        except ValueError as e:
+            print(f"日期格式错误: {e}")
+            return []
+    
+    def aggregate_by_category(self, category_key: str) -> Dict[str, float]:
+        """
+        按类别聚合数据
+        
+        Args:
+            category_key: 类别键名
+        
+        Returns:
+            按类别聚合的结果
+        """
+        aggregated = {}
+        for item in self.data:
+            category = item.get(category_key, 'Unknown')
+            value = item.get('value', 0)
+            aggregated[category] = aggregated.get(category, 0) + value
+        return aggregated
+    
+    def calculate_statistics(self, value_key: str = 'value') -> Dict[str, float]:
+        """
+        计算统计信息
+        
+        Args:
+            value_key: 值的键名
+        
+        Returns:
+            包含平均值、最大值、最小值的字典
+        """
+        values = [item.get(value_key, 0) for item in self.data]
+        
+        if not values:
+            return {'average': 0, 'max': 0, 'min': 0, 'total': 0}
+        
+        return {
+            'average': sum(values) / len(values),
+            'max': max(values),
+            'min': min(values),
+            'total': sum(values),
+            'count': len(values)
+        }
+
+# 使用示例
+if __name__ == '__main__':
+    sample_data = [
+        {'date': '2025-01-01', 'category': 'A', 'value': 100},
+        {'date': '2025-01-02', 'category': 'B', 'value': 150},
+        {'date': '2025-01-03', 'category': 'A', 'value': 200},
+        {'date': '2025-01-04', 'category': 'C', 'value': 120},
+    ]
+    
+    processor = DataProcessor(sample_data)
+    
+    # 计算统计信息
+    stats = processor.calculate_statistics()
+    print(f"统计信息: {json.dumps(stats, indent=2)}")
+    
+    # 按类别聚合
+    aggregated = processor.aggregate_by_category('category')
+    print(f"按类别聚合: {json.dumps(aggregated, indent=2)}")
+`})}),`
+`,n.jsxs(e.h3,{id:"示例-2web-api-服务",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#示例-2web-api-服务",children:n.jsx(e.span,{className:"icon icon-link"})}),"示例 2：Web API 服务"]}),`
+`,n.jsx(e.pre,{children:n.jsx(e.code,{className:"language-python",children:`from flask import Flask, request, jsonify
+from typing import Optional, Tuple
+import logging
+
+app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# 模拟数据库
+users_db = {
+    '1': {'id': '1', 'name': 'Alice', 'email': 'alice@example.com'},
+    '2': {'id': '2', 'name': 'Bob', 'email': 'bob@example.com'},
+}
+
+@app.route('/api/users', methods=['GET'])
+def get_users():
+    """获取所有用户"""
+    try:
+        return jsonify(list(users_db.values())), 200
+    except Exception as e:
+        logger.error(f"获取用户列表失败: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/users/<user_id>', methods=['GET'])
+def get_user(user_id: str):
+    """获取单个用户"""
+    user = users_db.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    return jsonify(user), 200
+
+@app.route('/api/users', methods=['POST'])
+def create_user():
+    """创建新用户"""
+    try:
+        data = request.get_json()
+        
+        # 验证必需字段
+        if not data or not data.get('name') or not data.get('email'):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        # 生成新 ID
+        new_id = str(max(int(k) for k in users_db.keys()) + 1)
+        
+        # 创建用户
+        new_user = {
+            'id': new_id,
+            'name': data['name'],
+            'email': data['email']
+        }
+        users_db[new_id] = new_user
+        
+        logger.info(f"创建新用户: {new_id}")
+        return jsonify(new_user), 201
+    except Exception as e:
+        logger.error(f"创建用户失败: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/users/<user_id>', methods=['PUT'])
+def update_user(user_id: str):
+    """更新用户"""
+    if user_id not in users_db:
+        return jsonify({'error': 'User not found'}), 404
+    
+    try:
+        data = request.get_json()
+        user = users_db[user_id]
+        
+        # 更新字段
+        if 'name' in data:
+            user['name'] = data['name']
+        if 'email' in data:
+            user['email'] = data['email']
+        
+        logger.info(f"更新用户: {user_id}")
+        return jsonify(user), 200
+    except Exception as e:
+        logger.error(f"更新用户失败: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/users/<user_id>', methods=['DELETE'])
+def delete_user(user_id: str):
+    """删除用户"""
+    if user_id not in users_db:
+        return jsonify({'error': 'User not found'}), 404
+    
+    try:
+        del users_db[user_id]
+        logger.info(f"删除用户: {user_id}")
+        return '', 204
+    except Exception as e:
+        logger.error(f"删除用户失败: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
+`})}),`
+`,n.jsxs(e.h2,{id:"java-示例",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#java-示例",children:n.jsx(e.span,{className:"icon icon-link"})}),"Java 示例"]}),`
+`,n.jsxs(e.h3,{id:"示例用户管理服务",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#示例用户管理服务",children:n.jsx(e.span,{className:"icon icon-link"})}),"示例：用户管理服务"]}),`
+`,n.jsx(e.pre,{children:n.jsx(e.code,{className:"language-java",children:`import java.util.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+/**
+ * 用户类
+ */
+public class User {
+    private String id;
+    private String name;
+    private String email;
+    private LocalDateTime createdAt;
+    
+    public User(String id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.createdAt = LocalDateTime.now();
+    }
+    
+    // Getters and Setters
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    
+    @Override
+    public String toString() {
+        return String.format("User{id='%s', name='%s', email='%s', createdAt=%s}",
+                id, name, email, createdAt);
+    }
+}
+
+/**
+ * 用户管理服务
+ */
+public class UserService {
+    private Map<String, User> users = new HashMap<>();
+    private int nextId = 1;
+    
+    /**
+     * 添加用户
+     */
+    public User addUser(String name, String email) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("用户名不能为空");
+        }
+        if (email == null || !email.contains("@")) {
+            throw new IllegalArgumentException("邮箱格式不正确");
+        }
+        
+        String id = String.valueOf(nextId++);
+        User user = new User(id, name, email);
+        users.put(id, user);
+        return user;
+    }
+    
+    /**
+     * 获取用户
+     */
+    public User getUser(String id) {
+        User user = users.get(id);
+        if (user == null) {
+            throw new IllegalArgumentException("用户不存在: " + id);
+        }
+        return user;
+    }
+    
+    /**
+     * 获取所有用户
+     */
+    public List<User> getAllUsers() {
+        return new ArrayList<>(users.values());
+    }
+    
+    /**
+     * 更新用户
+     */
+    public User updateUser(String id, String name, String email) {
+        User user = getUser(id);
+        if (name != null && !name.trim().isEmpty()) {
+            user.setName(name);
+        }
+        if (email != null && email.contains("@")) {
+            user.setEmail(email);
+        }
+        return user;
+    }
+    
+    /**
+     * 删除用户
+     */
+    public void deleteUser(String id) {
+        if (!users.containsKey(id)) {
+            throw new IllegalArgumentException("用户不存在: " + id);
+        }
+        users.remove(id);
+    }
+    
+    /**
+     * 按名称搜索用户
+     */
+    public List<User> searchByName(String keyword) {
+        List<User> results = new ArrayList<>();
+        String lowerKeyword = keyword.toLowerCase();
+        
+        for (User user : users.values()) {
+            if (user.getName().toLowerCase().contains(lowerKeyword)) {
+                results.add(user);
+            }
+        }
+        return results;
+    }
+}
+
+/**
+ * 使用示例
+ */
+public class Main {
+    public static void main(String[] args) {
+        UserService service = new UserService();
+        
+        // 添加用户
+        User user1 = service.addUser("Alice", "alice@example.com");
+        User user2 = service.addUser("Bob", "bob@example.com");
+        
+        System.out.println("添加用户:");
+        System.out.println(user1);
+        System.out.println(user2);
+        
+        // 获取所有用户
+        System.out.println("\\n所有用户:");
+        service.getAllUsers().forEach(System.out::println);
+        
+        // 搜索用户
+        System.out.println("\\n搜索 'Alice':");
+        service.searchByName("Alice").forEach(System.out::println);
+        
+        // 更新用户
+        System.out.println("\\n更新用户:");
+        User updated = service.updateUser("1", "Alice Smith", "alice.smith@example.com");
+        System.out.println(updated);
+    }
+}
+`})}),`
+`,n.jsxs(e.h2,{id:"go-示例",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#go-示例",children:n.jsx(e.span,{className:"icon icon-link"})}),"Go 示例"]}),`
+`,n.jsxs(e.h3,{id:"示例http-服务器",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#示例http-服务器",children:n.jsx(e.span,{className:"icon icon-link"})}),"示例：HTTP 服务器"]}),`
+`,n.jsx(e.pre,{children:n.jsx(e.code,{className:"language-go",children:`package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"sync"
+)
+
+// User 用户结构体
+type User struct {
+	ID    string \`json:"id"\`
+	Name  string \`json:"name"\`
+	Email string \`json:"email"\`
+}
+
+// UserStore 用户存储
+type UserStore struct {
+	mu    sync.RWMutex
+	users map[string]*User
+	nextID int
+}
+
+// NewUserStore 创建新的用户存储
+func NewUserStore() *UserStore {
+	return &UserStore{
+		users:  make(map[string]*User),
+		nextID: 1,
+	}
+}
+
+// AddUser 添加用户
+func (s *UserStore) AddUser(name, email string) *User {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	
+	id := fmt.Sprintf("%d", s.nextID)
+	s.nextID++
+	
+	user := &User{
+		ID:    id,
+		Name:  name,
+		Email: email,
+	}
+	s.users[id] = user
+	return user
+}
+
+// GetUser 获取用户
+func (s *UserStore) GetUser(id string) (*User, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	
+	user, exists := s.users[id]
+	return user, exists
+}
+
+// GetAllUsers 获取所有用户
+func (s *UserStore) GetAllUsers() []*User {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	
+	users := make([]*User, 0, len(s.users))
+	for _, user := range s.users {
+		users = append(users, user)
+	}
+	return users
+}
+
+// DeleteUser 删除用户
+func (s *UserStore) DeleteUser(id string) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	
+	if _, exists := s.users[id]; exists {
+		delete(s.users, id)
+		return true
+	}
+	return false
+}
+
+// HTTP 处理器
+type Handler struct {
+	store *UserStore
+}
+
+// GetUsers 获取所有用户
+func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	users := h.store.GetAllUsers()
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(users)
+}
+
+// CreateUser 创建用户
+func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Name  string \`json:"name"\`
+		Email string \`json:"email"\`
+	}
+	
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	
+	user := h.store.AddUser(req.Name, req.Email)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(user)
+}
+
+func main() {
+	store := NewUserStore()
+	handler := &Handler{store: store}
+	
+	// 添加初始数据
+	store.AddUser("Alice", "alice@example.com")
+	store.AddUser("Bob", "bob@example.com")
+	
+	// 设置路由
+	http.HandleFunc("/api/users", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			handler.GetUsers(w, r)
+		case http.MethodPost:
+			handler.CreateUser(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+	
+	// 启动服务器
+	log.Println("服务器启动在 http://localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+`})}),`
+`,n.jsxs(e.h2,{id:"最佳实践总结",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#最佳实践总结",children:n.jsx(e.span,{className:"icon icon-link"})}),"最佳实践总结"]}),`
+`,n.jsxs(e.h3,{id:"代码质量",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#代码质量",children:n.jsx(e.span,{className:"icon icon-link"})}),"代码质量"]}),`
+`,n.jsxs(e.ul,{children:[`
+`,n.jsx(e.li,{children:"✅ 使用类型注解和类型检查"}),`
+`,n.jsx(e.li,{children:"✅ 添加详细的注释和文档"}),`
+`,n.jsx(e.li,{children:"✅ 遵循语言的命名规范"}),`
+`,n.jsx(e.li,{children:"✅ 处理错误和异常情况"}),`
+`,n.jsx(e.li,{children:"✅ 编写可测试的代码"}),`
+`]}),`
+`,n.jsxs(e.h3,{id:"性能考虑",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#性能考虑",children:n.jsx(e.span,{className:"icon icon-link"})}),"性能考虑"]}),`
+`,n.jsxs(e.ul,{children:[`
+`,n.jsx(e.li,{children:"✅ 避免不必要的循环和递归"}),`
+`,n.jsx(e.li,{children:"✅ 使用合适的数据结构"}),`
+`,n.jsx(e.li,{children:"✅ 缓存计算结果"}),`
+`,n.jsx(e.li,{children:"✅ 异步处理长时间操作"}),`
+`]}),`
+`,n.jsxs(e.h3,{id:"安全性",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#安全性",children:n.jsx(e.span,{className:"icon icon-link"})}),"安全性"]}),`
+`,n.jsxs(e.ul,{children:[`
+`,n.jsx(e.li,{children:"✅ 验证用户输入"}),`
+`,n.jsx(e.li,{children:"✅ 使用参数化查询防止注入"}),`
+`,n.jsx(e.li,{children:"✅ 处理敏感数据时加密"}),`
+`,n.jsx(e.li,{children:"✅ 实现适当的访问控制"}),`
+`]}),`
+`,n.jsxs(e.h2,{id:"下一步",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#下一步",children:n.jsx(e.span,{className:"icon icon-link"})}),"下一步"]}),`
+`,n.jsx(e.p,{children:"现在你已经看到了多种编程语言的实用示例，可以继续学习："}),`
+`,n.jsxs(e.ul,{children:[`
+`,n.jsxs(e.li,{children:[n.jsx(e.a,{href:"/03-advanced/specs",children:"进阶功能"})," - 学习 Specs 工作流程"]}),`
+`,n.jsxs(e.li,{children:[n.jsx(e.a,{href:"/04-mastery/best-practices",children:"最佳实践"})," - 深入了解编程最佳实践"]}),`
+`]}),`
+`,n.jsxs(e.h2,{id:"小结",children:[n.jsx(e.a,{"aria-hidden":"true",tabIndex:"-1",href:"#小结",children:n.jsx(e.span,{className:"icon icon-link"})}),"小结"]}),`
+`,n.jsx(e.p,{children:"这些代码示例展示了如何使用 Claude Code 编写高质量的代码。关键要点："}),`
+`,n.jsxs(e.ul,{children:[`
+`,n.jsx(e.li,{children:"✅ 清晰的代码结构和命名"}),`
+`,n.jsx(e.li,{children:"✅ 完整的错误处理"}),`
+`,n.jsx(e.li,{children:"✅ 详细的文档和注释"}),`
+`,n.jsx(e.li,{children:"✅ 遵循语言最佳实践"}),`
+`,n.jsx(e.li,{children:"✅ 考虑性能和安全性"}),`
+`]}),`
+`,n.jsx(e.p,{children:"使用 Claude Code 的代码补全和对话功能，你可以快速生成这样的高质量代码。"})]})}function a(r={}){const{wrapper:e}=r.components||{};return e?n.jsx(e,{...r,children:n.jsx(t,{...r})}):t(r)}export{a as default};
