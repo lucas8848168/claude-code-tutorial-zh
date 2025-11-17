@@ -121,7 +121,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
           style={style}
           showLineNumbers={showLineNumbers}
           wrapLines={!!highlightLines}
-          lineProps={(lineNumber) => {
+          lineProps={(lineNumber: number) => {
             const shouldHighlight = linesToHighlight.includes(lineNumber);
             return {
               style: shouldHighlight
