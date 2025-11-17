@@ -10,8 +10,8 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 export default defineConfig({
   // 根据环境设置 base 路径
   // 本地开发: /
-  // GitHub Pages 部署: /claude-code-tutorial-zh/
-  base: process.env.NODE_ENV === 'production' ? '/claude-code-tutorial-zh/' : '/',
+  // GitHub Pages 部署: /cc_tutorial-zh/
+  base: process.env.NODE_ENV === 'production' ? '/cc_tutorial-zh/' : '/',
   plugins: [
     { enforce: 'pre', ...mdx({
       remarkPlugins: [remarkGfm, remarkFrontmatter],
