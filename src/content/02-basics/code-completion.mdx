@@ -1,0 +1,188 @@
+---
+title: "代码补全功能"
+description: "掌握 Claude Code 的智能代码补全功能，提升编程效率"
+level: beginner
+estimatedMinutes: 15
+order: 1
+tags: ["代码补全", "快捷键", "基础功能"]
+lastUpdated: 2025-11-16
+---
+
+# 代码补全功能
+
+Claude Code 的代码补全功能是一个强大的 AI 助手，能够根据你的代码上下文智能地提供代码建议。与传统的代码补全工具不同，Claude Code 不仅能补全单个词或函数名，还能理解你的编程意图，生成完整的代码块、函数甚至整个类。
+
+## 什么是智能代码补全？
+
+智能代码补全是 Claude Code 的核心功能之一。当你在编辑器中输入代码时，AI 会实时分析你的代码上下文、项目结构和编程模式，然后提供最相关的代码建议。这些建议会以灰色文本的形式出现在光标位置，你可以选择接受或忽略。
+
+### 主要特点
+
+- **上下文感知**：理解当前文件、项目结构和编程语言
+- **多行补全**：不仅补全单行，还能生成完整的代码块
+- **智能推理**：根据函数名、注释和变量名推断你的意图
+- **实时响应**：在你输入时即时提供建议，无需等待
+
+## 如何使用代码补全
+
+### 基础使用流程
+
+1. **开始编写代码**：在编辑器中正常输入代码
+2. **等待建议**：AI 会在几毫秒内显示灰色的补全建议
+3. **接受建议**：按 `Tab` 键接受整个建议
+4. **部分接受**：按 `Ctrl + →`（Windows/Linux）或 `Cmd + →`（macOS）接受建议的下一个词
+5. **忽略建议**：继续输入或按 `Esc` 键忽略当前建议
+
+### 实用快捷键
+
+| 快捷键 | 功能 | 说明 |
+|--------|------|------|
+| `Tab` | 接受完整建议 | 接受 AI 提供的全部代码 |
+| `Ctrl/Cmd + →` | 接受下一个词 | 逐词接受建议，更精确控制 |
+| `Esc` | 取消建议 | 关闭当前的补全建议 |
+| `Alt + [` | 查看上一个建议 | 在多个建议间切换 |
+| `Alt + ]` | 查看下一个建议 | 在多个建议间切换 |
+
+## 代码示例
+
+### 示例 1：函数补全
+
+当你开始编写一个函数时，Claude Code 会根据函数名推断其功能：
+
+```javascript
+// 你输入：
+function calculateTotalPrice
+
+// AI 建议：
+function calculateTotalPrice(items, taxRate) {
+  const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+  const tax = subtotal * taxRate;
+  return subtotal + tax;
+}
+```
+
+### 示例 2：类方法补全
+
+在类中添加方法时，AI 会考虑类的上下文：
+
+```python
+class UserManager:
+    def __init__(self):
+        self.users = []
+    
+    # 你输入：
+    def add_user
+    
+    # AI 建议：
+    def add_user(self, name, email):
+        user = {
+            'id': len(self.users) + 1,
+            'name': name,
+            'email': email
+        }
+        self.users.append(user)
+        return user
+```
+
+### 示例 3：注释驱动开发
+
+通过编写注释，引导 AI 生成代码：
+
+```typescript
+// 你输入注释：
+// 创建一个函数，验证邮箱地址格式是否正确
+
+// AI 建议完整实现：
+function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+```
+
+## 使用技巧
+
+### 1. 编写清晰的函数名
+
+函数名越清晰，AI 的建议就越准确。使用描述性的命名：
+
+```javascript
+// ✅ 好的命名
+function getUsersByAgeRange(minAge, maxAge) { ... }
+
+// ❌ 不好的命名
+function getData(a, b) { ... }
+```
+
+### 2. 利用注释引导
+
+在复杂逻辑前添加注释，帮助 AI 理解你的意图：
+
+```python
+# 计算斐波那契数列的第 n 项，使用动态规划优化
+def fibonacci(n):
+    # AI 会根据注释生成优化的实现
+```
+
+### 3. 保持代码上下文
+
+确保相关代码在同一文件中，AI 能更好地理解项目结构：
+
+```javascript
+// 定义接口
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+// AI 会根据接口定义生成类型安全的函数
+function createUser
+```
+
+### 4. 分步骤编写
+
+对于复杂功能，分步骤编写可以获得更好的建议：
+
+```javascript
+// 第一步：定义函数签名
+async function fetchUserData(userId) {
+  
+// 第二步：AI 会建议完整的实现
+  const response = await fetch(`/api/users/${userId}`);
+  const data = await response.json();
+  return data;
+}
+```
+
+## 常见问题
+
+### Q: 代码补全没有出现怎么办？
+
+**A:** 检查以下几点：
+- 确保 Claude Code 已正确安装并激活
+- 检查网络连接是否正常
+- 尝试重启编辑器
+- 查看设置中代码补全功能是否已启用
+
+### Q: 补全建议不准确怎么办？
+
+**A:** 可以尝试：
+- 添加更多上下文代码
+- 使用注释说明你的意图
+- 改进变量和函数的命名
+- 忽略当前建议，继续输入以获得新建议
+
+### Q: 如何临时禁用代码补全？
+
+**A:** 按 `Ctrl/Cmd + Shift + P` 打开命令面板，搜索 "Claude Code: Toggle Inline Suggestions" 来切换补全功能。
+
+## 下一步
+
+现在你已经掌握了代码补全的基础知识，接下来可以学习：
+
+- [对话式编程](/02-basics/chat) - 通过对话与 AI 协作编程
+- [文件操作](/02-basics/file-operations) - 使用 Claude Code 管理项目文件
+
+## 小结
+
+代码补全是 Claude Code 最常用的功能之一。通过合理使用快捷键、编写清晰的代码和注释，你可以大大提升编程效率。记住，AI 是你的助手，而不是替代品——始终要理解和审查 AI 生成的代码。

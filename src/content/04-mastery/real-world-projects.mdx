@@ -1,0 +1,628 @@
+---
+title: "实战项目案例"
+description: "通过完整的实战项目案例学习如何使用 Claude Code 开发真实应用"
+level: expert
+estimatedMinutes: 30
+order: 3
+tags: ["实战", "项目案例", "完整示例", "精通"]
+lastUpdated: "2025-11-16"
+---
+
+# 实战项目案例
+
+本章节通过完整的实战项目案例，展示如何使用 Claude Code 开发真实应用。这些案例涵盖了从需求分析到部署的完整开发流程。
+
+## 项目 1：任务管理应用
+
+### 项目概述
+
+构建一个功能完整的任务管理应用，包括任务创建、编辑、删除、分类和搜索功能。
+
+### 技术栈
+
+- **前端**：React + TypeScript + Tailwind CSS
+- **状态管理**：Zustand
+- **存储**：LocalStorage
+- **测试**：Jest + React Testing Library
+
+### 项目结构
+
+```
+todo-app/
+├── src/
+│   ├── components/
+│   │   ├── TaskForm.tsx
+│   │   ├── TaskList.tsx
+│   │   ├── TaskItem.tsx
+│   │   └── TaskFilter.tsx
+│   ├── store/
+│   │   └── taskStore.ts
+│   ├── types/
+│   │   └── task.ts
+│   ├── App.tsx
+│   └── index.css
+├── tests/
+│   ├── taskStore.test.ts
+│   └── TaskList.test.tsx
+└── package.json
+```
+
+### 核心实现
+
+#### 1. 类型定义
+
+```typescript
+// src/types/task.ts
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  category: 'work' | 'personal' | 'shopping';
+  completed: boolean;
+  dueDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface TaskFilter {
+  category?: string;
+  completed?: boolean;
+  searchTerm?: string;
+}
+```
+
+#### 2. 状态管理
+
+```typescript
+// src/store/taskStore.ts
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { Task, TaskFilter } from '../types/task';
+
+interface TaskStore {
+  tasks: Task[];
+  filter: TaskFilter;
+  
+  // 操作
+  addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateTask: (id: string, updates: Partial<Task>) => void;
+  deleteTask: (id: string) => void;
+  toggleTask: (id: string) => void;
+  setFilter: (filter: TaskFilter) => void;
+  
+  // 查询
+  getFilteredTasks: () => Task[];
+}
+
+export const useTaskStore = create<TaskStore>()(
+  persist(
+    (set, get) => ({
+      tasks: [],
+      filter: {},
+      
+      addTask: (task) => set((state) => ({
+        tasks: [
+          ...state.tasks,
+          {
+            ...task,
+            id: Date.now().toString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
+        ]
+      })),
+      
+      updateTask: (id, updates) => set((state) => ({
+        tasks: state.tasks.map(task =>
+          task.id === id
+            ? { ...task, ...updates, updatedAt: new Date() }
+            : task
+        )
+      })),
+      
+      deleteTask: (id) => set((state) => ({
+        tasks: state.tasks.filter(task => task.id !== id)
+      })),
+      
+      toggleTask: (id) => set((state) => ({
+        tasks: state.tasks.map(task =>
+          task.id === id
+            ? { ...task, completed: !task.completed }
+            : task
+        )
+      })),
+      
+      setFilter: (filter) => set({ filter }),
+      
+      getFilteredTasks: () => {
+        const { tasks, filter } = get();
+        return tasks.filter(task => {
+          if (filter.category && task.category !== filter.category) {
+            return false;
+          }
+          if (filter.completed !== undefined && task.completed !== filter.completed) {
+            return false;
+          }
+          if (filter.searchTerm) {
+            const term = filter.searchTerm.toLowerCase();
+            return (
+              task.title.toLowerCase().includes(term) ||
+              task.description?.toLowerCase().includes(term)
+            );
+          }
+          return true;
+        });
+      }
+    }),
+    {
+      name: 'task-store'
+    }
+  )
+);
+```
+
+#### 3. 组件实现
+
+```typescript
+// src/components/TaskList.tsx
+import React from 'react';
+import { useTaskStore } from '../store/taskStore';
+import TaskItem from './TaskItem';
+import TaskFilter from './TaskFilter';
+
+export const TaskList: React.FC = () => {
+  const { getFilteredTasks } = useTaskStore();
+  const filteredTasks = getFilteredTasks();
+
+  return (
+    <div className="space-y-4">
+      <TaskFilter />
+      
+      {filteredTasks.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          没有找到任务
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filteredTasks.map(task => (
+            <TaskItem key={task.id} task={task} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+### 常见问题和解决方案
+
+#### Q: 如何处理任务的持久化？
+
+**A:** 使用 Zustand 的 `persist` 中间件自动保存到 LocalStorage。
+
+#### Q: 如何实现搜索功能？
+
+**A:** 在 `getFilteredTasks` 中添加搜索逻辑，支持标题和描述的模糊搜索。
+
+#### Q: 如何测试异步操作？
+
+**A:** 使用 `jest.useFakeTimers()` 和 `waitFor` 来测试异步操作。
+
+## 项目 2：博客系统
+
+### 项目概述
+
+构建一个完整的博客系统，包括文章管理、评论系统、标签分类和搜索功能。
+
+### 技术栈
+
+- **前端**：React + TypeScript
+- **后端**：Node.js + Express
+- **数据库**：MongoDB
+- **认证**：JWT
+
+### 核心功能
+
+#### 1. 文章管理 API
+
+```typescript
+// backend/routes/articles.ts
+import express from 'express';
+import { Article } from '../models/Article';
+import { authenticate } from '../middleware/auth';
+
+const router = express.Router();
+
+// 获取所有文章
+router.get('/', async (req, res) => {
+  try {
+    const { page = 1, limit = 10, tag, search } = req.query;
+    
+    let query: any = { published: true };
+    
+    if (tag) {
+      query.tags = tag;
+    }
+    
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const articles = await Article.find(query)
+      .limit(limit as number)
+      .skip((page as number - 1) * (limit as number))
+      .sort({ createdAt: -1 });
+    
+    const total = await Article.countDocuments(query);
+    
+    res.json({
+      articles,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / (limit as number))
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch articles' });
+  }
+});
+
+// 创建文章
+router.post('/', authenticate, async (req, res) => {
+  try {
+    const { title, content, tags, excerpt } = req.body;
+    
+    // 验证输入
+    if (!title || !content) {
+      return res.status(400).json({ error: 'Title and content are required' });
+    }
+    
+    const article = new Article({
+      title,
+      content,
+      excerpt: excerpt || content.substring(0, 200),
+      tags: tags || [],
+      author: req.user.id,
+      published: false
+    });
+    
+    await article.save();
+    res.status(201).json(article);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create article' });
+  }
+});
+
+// 更新文章
+router.put('/:id', authenticate, async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+    
+    if (article.author.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    
+    Object.assign(article, req.body);
+    await article.save();
+    
+    res.json(article);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update article' });
+  }
+});
+
+// 删除文章
+router.delete('/:id', authenticate, async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+    
+    if (article.author.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    
+    await Article.deleteOne({ _id: req.params.id });
+    res.json({ message: 'Article deleted' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete article' });
+  }
+});
+
+export default router;
+```
+
+#### 2. 评论系统
+
+```typescript
+// backend/routes/comments.ts
+import express from 'express';
+import { Comment } from '../models/Comment';
+import { authenticate } from '../middleware/auth';
+
+const router = express.Router();
+
+// 获取文章的评论
+router.get('/article/:articleId', async (req, res) => {
+  try {
+    const comments = await Comment.find({ articleId: req.params.articleId })
+      .populate('author', 'name avatar')
+      .sort({ createdAt: -1 });
+    
+    res.json(comments);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch comments' });
+  }
+});
+
+// 添加评论
+router.post('/', authenticate, async (req, res) => {
+  try {
+    const { articleId, content } = req.body;
+    
+    if (!content) {
+      return res.status(400).json({ error: 'Content is required' });
+    }
+    
+    const comment = new Comment({
+      articleId,
+      content,
+      author: req.user.id
+    });
+    
+    await comment.save();
+    await comment.populate('author', 'name avatar');
+    
+    res.status(201).json(comment);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create comment' });
+  }
+});
+
+// 删除评论
+router.delete('/:id', authenticate, async (req, res) => {
+  try {
+    const comment = await Comment.findById(req.params.id);
+    
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+    
+    if (comment.author.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    
+    await Comment.deleteOne({ _id: req.params.id });
+    res.json({ message: 'Comment deleted' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete comment' });
+  }
+});
+
+export default router;
+```
+
+### 调试技巧
+
+#### 1. 使用 MongoDB Compass
+
+- 连接到本地 MongoDB
+- 查看数据库结构
+- 执行查询和修改数据
+
+#### 2. 使用 Postman 测试 API
+
+- 创建请求集合
+- 设置环境变量
+- 自动化测试
+
+#### 3. 浏览器开发者工具
+
+- 查看网络请求
+- 检查 LocalStorage
+- 调试 JavaScript
+
+## 项目 3：电商平台
+
+### 项目概述
+
+构建一个完整的电商平台，包括商品管理、购物车、订单管理和支付功能。
+
+### 核心流程
+
+#### 1. 购物流程
+
+```
+浏览商品 → 添加到购物车 → 查看购物车 → 结账 → 支付 → 订单确认
+```
+
+#### 2. 订单管理
+
+```typescript
+// 订单状态流转
+待支付 → 已支付 → 已发货 → 已收货 → 已完成
+  ↓
+  已取消
+```
+
+### 常见问题
+
+#### Q: 如何处理库存管理？
+
+**A:** 在创建订单时锁定库存，支付成功后确认扣减，支付失败后释放库存。
+
+#### Q: 如何实现支付功能？
+
+**A:** 集成第三方支付网关（如 Stripe、支付宝），处理支付回调。
+
+#### Q: 如何处理并发订单？
+
+**A:** 使用数据库事务确保库存操作的原子性。
+
+## 调试和优化
+
+### 常见问题解决
+
+#### 问题 1：页面加载缓慢
+
+**原因**：
+- 大量数据加载
+- 未优化的查询
+- 未压缩的资源
+
+**解决方案**：
+- 实现分页
+- 添加数据库索引
+- 启用 Gzip 压缩
+
+#### 问题 2：内存泄漏
+
+**原因**：
+- 未清理事件监听器
+- 未取消定时器
+- 循环引用
+
+**解决方案**：
+```typescript
+// 正确的清理
+useEffect(() => {
+  const timer = setInterval(() => {
+    // ...
+  }, 1000);
+  
+  return () => clearInterval(timer);
+}, []);
+```
+
+#### 问题 3：并发问题
+
+**原因**：
+- 竞态条件
+- 未同步的状态
+
+**解决方案**：
+```typescript
+// 使用 AbortController 取消请求
+const controller = new AbortController();
+
+fetch('/api/data', { signal: controller.signal })
+  .then(r => r.json())
+  .catch(e => {
+    if (e.name !== 'AbortError') {
+      console.error(e);
+    }
+  });
+
+// 组件卸载时取消请求
+return () => controller.abort();
+```
+
+## 性能优化案例
+
+### 案例 1：列表渲染优化
+
+```typescript
+// 优化前：每次都重新渲染所有项
+{items.map(item => <Item key={item.id} item={item} />)}
+
+// 优化后：使用虚拟滚动
+import { FixedSizeList } from 'react-window';
+
+<FixedSizeList
+  height={600}
+  itemCount={items.length}
+  itemSize={50}
+>
+  {({ index, style }) => (
+    <Item style={style} item={items[index]} />
+  )}
+</FixedSizeList>
+```
+
+### 案例 2：API 调用优化
+
+```typescript
+// 优化前：每次都调用 API
+useEffect(() => {
+  fetchData();
+}, []);
+
+// 优化后：使用缓存和去重
+const cache = useRef(new Map());
+
+const fetchData = useCallback(async (id: string) => {
+  if (cache.current.has(id)) {
+    return cache.current.get(id);
+  }
+  
+  const data = await api.get(`/data/${id}`);
+  cache.current.set(id, data);
+  return data;
+}, []);
+```
+
+## 部署和上线
+
+### 部署检查清单
+
+- [ ] 所有测试通过
+- [ ] 代码审查完成
+- [ ] 性能指标达到要求
+- [ ] 安全审计完成
+- [ ] 文档已更新
+- [ ] 环境变量已配置
+- [ ] 备份已创建
+- [ ] 监控已设置
+
+### 部署流程
+
+```bash
+# 1. 构建
+npm run build
+
+# 2. 测试
+npm run test
+
+# 3. 部署到暂存环境
+npm run deploy:staging
+
+# 4. 验证
+npm run test:e2e
+
+# 5. 部署到生产环境
+npm run deploy:production
+
+# 6. 监控
+npm run monitor
+```
+
+## 下一步
+
+现在你已经学习了完整的实战项目案例，可以：
+
+- 应用这些知识到你自己的项目
+- 探索更复杂的场景
+- 参与开源项目
+
+## 小结
+
+通过这些实战项目案例，你学到了：
+
+- ✅ 如何设计和实现完整的应用
+- ✅ 如何处理常见的技术问题
+- ✅ 如何优化性能和用户体验
+- ✅ 如何调试和解决问题
+- ✅ 如何部署和维护应用
+
+记住，实践是最好的学习方式。开始构建你自己的项目，应用这些知识和技巧。

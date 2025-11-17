@@ -1,0 +1,414 @@
+---
+title: "MCP 集成指南"
+description: "学习如何使用 Model Context Protocol 连接外部工具和服务"
+level: advanced
+estimatedMinutes: 20
+order: 4
+tags: ["MCP", "集成", "工具", "进阶功能"]
+lastUpdated: "2025-11-16"
+---
+
+# MCP 集成指南
+
+Model Context Protocol（MCP）是一个开放标准，允许 Claude Code 与外部工具和服务集成。通过 MCP，你可以扩展 Claude Code 的功能，连接到数据库、API、文档系统等。
+
+## 什么是 MCP？
+
+MCP 是一个协议，定义了 Claude Code 与外部工具之间的通信方式。它允许：
+
+- **数据访问**：访问数据库、文件系统、API
+- **工具集成**：集成开发工具、构建系统、部署工具
+- **知识库**：连接文档、代码库、参考资料
+- **自定义功能**：创建特定于项目的工具和功能
+
+## MCP 的优势
+
+### 1. 扩展功能
+
+通过 MCP，你可以为 Claude Code 添加自定义功能。
+
+### 2. 数据访问
+
+AI 可以访问你的数据库、API 和文件系统，提供更准确的建议。
+
+### 3. 工具集成
+
+集成你已经使用的开发工具，创建统一的工作流程。
+
+### 4. 知识增强
+
+连接你的文档和代码库，让 AI 更好地理解你的项目。
+
+## 配置 MCP
+
+### 配置文件位置
+
+MCP 配置文件有两个位置：
+
+1. **工作区级别**：`.kiro/settings/mcp.json`（项目特定）
+2. **用户级别**：`~/.kiro/settings/mcp.json`（全局）
+
+工作区级别的配置优先级更高。
+
+### 基本配置结构
+
+```json
+{
+  "mcpServers": {
+    "server-name": {
+      "command": "uvx",
+      "args": ["package@version"],
+      "env": {
+        "KEY": "value"
+      },
+      "disabled": false,
+      "autoApprove": ["tool1", "tool2"]
+    }
+  }
+}
+```
+
+## 常见 MCP 服务器
+
+### 1. AWS 文档服务器
+
+访问 AWS 官方文档：
+
+```json
+{
+  "mcpServers": {
+    "aws-docs": {
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
+```
+
+**使用示例**：
+
+```
+你：@aws-docs 如何在 AWS Lambda 中使用环境变量？
+
+AI：根据 AWS 文档，你可以通过以下方式在 Lambda 中使用环境变量...
+```
+
+### 2. 文件系统服务器
+
+访问项目文件系统：
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "uvx",
+      "args": ["mcp-server-filesystem"],
+      "disabled": false,
+      "autoApprove": ["read_file", "list_directory"]
+    }
+  }
+}
+```
+
+### 3. Git 服务器
+
+访问 Git 仓库信息：
+
+```json
+{
+  "mcpServers": {
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git"],
+      "disabled": false,
+      "autoApprove": ["get_repository_status", "get_commit_history"]
+    }
+  }
+}
+```
+
+### 4. 数据库服务器
+
+连接到数据库：
+
+```json
+{
+  "mcpServers": {
+    "database": {
+      "command": "uvx",
+      "args": ["mcp-server-database"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost/dbname"
+      },
+      "disabled": false,
+      "autoApprove": ["query_database"]
+    }
+  }
+}
+```
+
+## 创建自定义 MCP 服务器
+
+### 基本结构
+
+创建一个简单的 MCP 服务器：
+
+```python
+# mcp_server.py
+import json
+from typing import Any
+
+class MCPServer:
+    def __init__(self):
+        self.tools = {
+            "get_project_info": self.get_project_info,
+            "analyze_code": self.analyze_code,
+            "generate_report": self.generate_report,
+        }
+    
+    def get_project_info(self, project_id: str) -> dict:
+        """获取项目信息"""
+        return {
+            "id": project_id,
+            "name": "My Project",
+            "description": "Project description",
+            "technologies": ["React", "TypeScript", "Node.js"]
+        }
+    
+    def analyze_code(self, file_path: str) -> dict:
+        """分析代码文件"""
+        return {
+            "file": file_path,
+            "lines": 150,
+            "complexity": "medium",
+            "issues": []
+        }
+    
+    def generate_report(self, project_id: str) -> dict:
+        """生成项目报告"""
+        return {
+            "project_id": project_id,
+            "report": "Project analysis report",
+            "timestamp": "2025-11-16T10:00:00Z"
+        }
+    
+    def handle_request(self, tool_name: str, params: dict) -> Any:
+        """处理请求"""
+        if tool_name in self.tools:
+            return self.tools[tool_name](**params)
+        else:
+            raise ValueError(f"Unknown tool: {tool_name}")
+
+# 主程序
+if __name__ == "__main__":
+    server = MCPServer()
+    
+    # 示例调用
+    result = server.handle_request("get_project_info", {"project_id": "123"})
+    print(json.dumps(result, indent=2))
+```
+
+### 注册自定义服务器
+
+1. 将服务器代码保存为 Python 包
+2. 在 `mcp.json` 中配置：
+
+```json
+{
+  "mcpServers": {
+    "my-custom-server": {
+      "command": "python",
+      "args": ["/path/to/mcp_server.py"],
+      "disabled": false,
+      "autoApprove": ["get_project_info", "analyze_code"]
+    }
+  }
+}
+```
+
+## 实际应用场景
+
+### 场景 1：代码分析和优化
+
+```json
+{
+  "mcpServers": {
+    "code-analyzer": {
+      "command": "uvx",
+      "args": ["mcp-server-code-analyzer"],
+      "disabled": false,
+      "autoApprove": ["analyze_complexity", "find_issues"]
+    }
+  }
+}
+```
+
+**使用**：
+
+```
+你：@code-analyzer 分析这个函数的复杂度
+
+AI：根据代码分析，这个函数的圈复杂度是 8，建议拆分为更小的函数...
+```
+
+### 场景 2：文档生成
+
+```json
+{
+  "mcpServers": {
+    "doc-generator": {
+      "command": "uvx",
+      "args": ["mcp-server-doc-generator"],
+      "disabled": false,
+      "autoApprove": ["generate_api_docs", "generate_readme"]
+    }
+  }
+}
+```
+
+**使用**：
+
+```
+你：@doc-generator 为这个 API 生成文档
+
+AI：我将为你的 API 生成完整的文档，包括端点、参数和示例...
+```
+
+### 场景 3：部署和监控
+
+```json
+{
+  "mcpServers": {
+    "deployment": {
+      "command": "uvx",
+      "args": ["mcp-server-deployment"],
+      "env": {
+        "DEPLOY_TOKEN": "your-token"
+      },
+      "disabled": false,
+      "autoApprove": ["check_deployment_status", "view_logs"]
+    }
+  }
+}
+```
+
+**使用**：
+
+```
+你：@deployment 检查生产环境的部署状态
+
+AI：根据部署系统，你的应用已成功部署到生产环境...
+```
+
+### 场景 4：知识库集成
+
+```json
+{
+  "mcpServers": {
+    "knowledge-base": {
+      "command": "uvx",
+      "args": ["mcp-server-knowledge-base"],
+      "env": {
+        "KB_URL": "https://knowledge.example.com"
+      },
+      "disabled": false,
+      "autoApprove": ["search_knowledge", "get_article"]
+    }
+  }
+}
+```
+
+**使用**：
+
+```
+你：@knowledge-base 查找关于 React Hooks 的最佳实践
+
+AI：根据知识库，React Hooks 的最佳实践包括...
+```
+
+## MCP 最佳实践
+
+### 1. 安全性
+
+- 不要在配置文件中硬编码敏感信息
+- 使用环境变量存储 API 密钥和令牌
+- 定期更新 MCP 服务器
+
+```json
+{
+  "mcpServers": {
+    "api-server": {
+      "command": "uvx",
+      "args": ["mcp-server-api"],
+      "env": {
+        "API_KEY": "${API_KEY}",  // 从环境变量读取
+        "API_URL": "https://api.example.com"
+      }
+    }
+  }
+}
+```
+
+### 2. 性能
+
+- 只启用需要的 MCP 服务器
+- 使用 `autoApprove` 加快常用工具的执行
+- 定期检查和清理未使用的服务器
+
+### 3. 错误处理
+
+- 为 MCP 服务器配置适当的超时
+- 实现重试机制
+- 记录错误日志
+
+### 4. 文档
+
+- 为自定义 MCP 服务器编写文档
+- 记录可用的工具和参数
+- 提供使用示例
+
+## 常见问题
+
+### Q: 如何安装 MCP 服务器？
+
+**A:** 大多数 MCP 服务器使用 `uvx` 命令运行，无需单独安装。如果需要安装 `uv`，请访问 https://docs.astral.sh/uv/getting-started/installation/
+
+### Q: 如何调试 MCP 服务器？
+
+**A:** 查看 Claude Code 的输出面板，可以看到 MCP 服务器的日志。你也可以在配置中设置 `FASTMCP_LOG_LEVEL` 为 `DEBUG`。
+
+### Q: 可以同时使用多个 MCP 服务器吗？
+
+**A:** 可以。在 `mcp.json` 中配置多个服务器，它们会同时运行。
+
+### Q: 如何禁用 MCP 服务器？
+
+**A:** 在配置中设置 `"disabled": true`，或通过命令面板禁用。
+
+### Q: MCP 服务器会影响性能吗？
+
+**A:** 如果配置正确，MCP 服务器的性能影响很小。建议只启用需要的服务器。
+
+## 下一步
+
+现在你已经了解了 MCP 集成，可以继续学习：
+
+- [最佳实践](/04-mastery/best-practices) - 深入了解编程最佳实践
+- [高级技巧](/04-mastery/advanced-tips) - 学习高级使用技巧
+
+## 小结
+
+MCP 是一个强大的扩展机制，可以帮助你：
+
+- ✅ 连接外部工具和服务
+- ✅ 扩展 Claude Code 的功能
+- ✅ 访问项目特定的数据和知识
+- ✅ 创建自定义工作流程
+- ✅ 提高开发效率
+
+通过有效使用 MCP，你可以创建一个高度定制化的、强大的开发环境。

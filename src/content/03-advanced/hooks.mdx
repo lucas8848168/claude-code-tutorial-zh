@@ -1,0 +1,450 @@
+---
+title: "Agent Hooks 自动化工作流"
+description: "学习如何使用 Agent Hooks 自动化重复性的开发工作流程"
+level: advanced
+estimatedMinutes: 18
+order: 2
+tags: ["Hooks", "自动化", "工作流程", "进阶功能"]
+lastUpdated: "2025-11-16"
+---
+
+# Agent Hooks 自动化工作流
+
+Agent Hooks 是 Claude Code 的一个强大功能，它允许你创建自动化的工作流程，在特定事件发生时自动执行 AI 任务。通过 Hooks，你可以消除重复性的工作，提高开发效率。
+
+## 什么是 Agent Hooks？
+
+Agent Hooks 是事件驱动的自动化规则。当特定事件发生时（例如保存文件、提交代码、更新文档），Hook 会自动触发 Claude Code 执行预定义的任务。
+
+### 核心概念
+
+- **事件**：触发 Hook 的条件（文件保存、代码提交等）
+- **条件**：可选的额外条件（文件类型、路径匹配等）
+- **操作**：Hook 触发时执行的任务（运行测试、生成文档等）
+
+## 常见 Hook 场景
+
+### 1. 自动测试
+
+当你保存代码文件时，自动运行相关的测试：
+
+```yaml
+name: Auto Test on Save
+trigger: file_saved
+condition:
+  path: "src/**/*.ts"
+action:
+  type: run_command
+  command: "npm test -- --testPathPattern=src"
+```
+
+### 2. 代码审查
+
+当你提交代码时，自动进行代码审查：
+
+```yaml
+name: Auto Code Review
+trigger: before_commit
+action:
+  type: chat
+  prompt: "请审查这些代码变更，指出潜在问题和改进建议"
+```
+
+### 3. 文档更新
+
+当你修改 API 时，自动更新相关文档：
+
+```yaml
+name: Update API Docs
+trigger: file_saved
+condition:
+  path: "src/api/**/*.ts"
+action:
+  type: chat
+  prompt: "为这个 API 文件生成或更新 JSDoc 注释"
+```
+
+### 4. 翻译同步
+
+当你更新英文文档时，自动更新其他语言版本：
+
+```yaml
+name: Sync Translations
+trigger: file_saved
+condition:
+  path: "docs/en/**/*.md"
+action:
+  type: chat
+  prompt: "将这个文档翻译成中文、日文和西班牙文"
+```
+
+## 创建 Agent Hooks
+
+### 方法 1：通过 UI
+
+1. 打开 Claude Code
+2. 打开命令面板（`Ctrl+Shift+P` 或 `Cmd+Shift+P`）
+3. 搜索"Open Kiro Hook UI"
+4. 点击"创建新 Hook"
+5. 填写 Hook 配置
+
+### 方法 2：编辑配置文件
+
+在 `.kiro/hooks/` 目录中创建 YAML 文件：
+
+```yaml
+# .kiro/hooks/auto-test.yaml
+name: "自动运行测试"
+description: "当保存 TypeScript 文件时自动运行测试"
+enabled: true
+
+trigger:
+  type: "file_saved"
+  
+condition:
+  path: "src/**/*.ts"
+  exclude: "src/**/*.test.ts"
+
+action:
+  type: "run_command"
+  command: "npm test -- --testPathPattern=${file_name}"
+  
+notification:
+  on_success: "✅ 测试通过"
+  on_failure: "❌ 测试失败"
+```
+
+## Hook 配置详解
+
+### 触发器类型
+
+| 触发器 | 说明 | 示例 |
+|--------|------|------|
+| `file_saved` | 文件保存时 | 自动格式化、运行测试 |
+| `file_created` | 文件创建时 | 生成模板、添加许可证 |
+| `file_deleted` | 文件删除时 | 更新导入、清理引用 |
+| `before_commit` | 提交前 | 代码审查、运行检查 |
+| `after_commit` | 提交后 | 更新文档、发送通知 |
+| `manual` | 手动触发 | 通过命令面板触发 |
+
+### 条件配置
+
+```yaml
+condition:
+  # 路径匹配（支持 glob 模式）
+  path: "src/**/*.ts"
+  
+  # 排除路径
+  exclude: "src/**/*.test.ts"
+  
+  # 文件大小限制（字节）
+  maxSize: 10000
+  
+  # 自定义条件
+  custom: "file.name.includes('Component')"
+```
+
+### 操作类型
+
+#### 1. 运行命令
+
+```yaml
+action:
+  type: "run_command"
+  command: "npm test"
+  cwd: "."  # 工作目录
+  timeout: 30000  # 超时时间（毫秒）
+```
+
+#### 2. Chat 对话
+
+```yaml
+action:
+  type: "chat"
+  prompt: "请审查这个文件并提出改进建议"
+  context: "file"  # 包含文件内容作为上下文
+```
+
+#### 3. 文件操作
+
+```yaml
+action:
+  type: "file_operation"
+  operation: "create"  # create, update, delete
+  path: "docs/${file_name}.md"
+  content: "# ${file_name}\n\n自动生成的文档"
+```
+
+#### 4. 格式化
+
+```yaml
+action:
+  type: "format"
+  formatter: "prettier"  # prettier, eslint, black 等
+  options:
+    semi: true
+    singleQuote: true
+```
+
+## 实际 Hook 示例
+
+### 示例 1：自动生成测试
+
+```yaml
+# .kiro/hooks/generate-tests.yaml
+name: "自动生成测试文件"
+description: "为新创建的 TypeScript 文件自动生成测试框架"
+enabled: true
+
+trigger:
+  type: "file_created"
+
+condition:
+  path: "src/**/*.ts"
+  exclude: "src/**/*.test.ts"
+
+action:
+  type: "chat"
+  prompt: |
+    为这个文件生成完整的单元测试。
+    
+    要求：
+    1. 使用 Jest 框架
+    2. 覆盖所有导出的函数
+    3. 包含边界情况测试
+    4. 添加详细的测试描述
+    
+    将测试文件保存为 ${file_name}.test.ts
+  context: "file"
+
+notification:
+  on_success: "✅ 测试文件已生成"
+  on_failure: "❌ 生成测试文件失败"
+```
+
+### 示例 2：代码审查
+
+```yaml
+# .kiro/hooks/code-review.yaml
+name: "自动代码审查"
+description: "在提交前自动审查代码变更"
+enabled: true
+
+trigger:
+  type: "before_commit"
+
+action:
+  type: "chat"
+  prompt: |
+    请审查这些代码变更。检查以下方面：
+    
+    1. 代码质量和可读性
+    2. 潜在的 bug 和性能问题
+    3. 安全性问题
+    4. 是否遵循项目的编码规范
+    5. 是否需要添加测试或文档
+    
+    如果发现问题，请列出具体的改进建议。
+  context: "git_diff"
+
+notification:
+  on_success: "✅ 代码审查完成"
+  on_failure: "❌ 代码审查失败"
+```
+
+### 示例 3：文档同步
+
+```yaml
+# .kiro/hooks/sync-docs.yaml
+name: "同步文档翻译"
+description: "当英文文档更新时，自动更新其他语言版本"
+enabled: true
+
+trigger:
+  type: "file_saved"
+
+condition:
+  path: "docs/en/**/*.md"
+
+action:
+  type: "chat"
+  prompt: |
+    这个英文文档已更新。请：
+    
+    1. 将内容翻译成中文
+    2. 将内容翻译成日文
+    3. 将内容翻译成西班牙文
+    
+    为每种语言创建对应的文件：
+    - docs/zh/${file_name}
+    - docs/ja/${file_name}
+    - docs/es/${file_name}
+    
+    确保翻译准确且符合各语言的表达习惯。
+  context: "file"
+
+notification:
+  on_success: "✅ 文档已翻译"
+  on_failure: "❌ 文档翻译失败"
+```
+
+### 示例 4：自动格式化和 Lint
+
+```yaml
+# .kiro/hooks/format-on-save.yaml
+name: "保存时自动格式化"
+description: "保存文件时自动格式化和运行 Lint 检查"
+enabled: true
+
+trigger:
+  type: "file_saved"
+
+condition:
+  path: "src/**/*.{ts,tsx,js,jsx}"
+
+actions:
+  - type: "format"
+    formatter: "prettier"
+    options:
+      semi: true
+      singleQuote: true
+      trailingComma: "es5"
+  
+  - type: "run_command"
+    command: "npm run lint -- --fix ${file_path}"
+
+notification:
+  on_success: "✅ 文件已格式化"
+  on_failure: "❌ 格式化失败"
+```
+
+## Hook 管理
+
+### 查看所有 Hooks
+
+1. 打开命令面板
+2. 搜索"Kiro: List Hooks"
+3. 查看所有已配置的 Hooks
+
+### 启用/禁用 Hooks
+
+在 Hook 配置中修改 `enabled` 字段：
+
+```yaml
+enabled: false  # 禁用此 Hook
+```
+
+或通过命令面板：
+
+1. 搜索"Kiro: Toggle Hook"
+2. 选择要切换的 Hook
+
+### 手动触发 Hook
+
+对于 `manual` 类型的 Hook，可以通过命令面板手动触发：
+
+1. 打开命令面板
+2. 搜索"Kiro: Run Hook"
+3. 选择要运行的 Hook
+
+## Hook 最佳实践
+
+### 1. 明确的目的
+
+每个 Hook 应该有明确的目的，不要创建过于复杂的 Hook。
+
+```yaml
+# ✅ 好的 Hook
+name: "运行单元测试"
+
+# ❌ 不好的 Hook
+name: "做一些事情"
+```
+
+### 2. 合理的触发条件
+
+避免过于频繁的触发，以免影响开发效率。
+
+```yaml
+# ✅ 好的条件
+condition:
+  path: "src/**/*.ts"
+  exclude: "src/**/*.test.ts"
+
+# ❌ 不好的条件
+condition:
+  path: "**/*"  # 太宽泛
+```
+
+### 3. 快速的执行时间
+
+Hook 应该快速执行，不要阻塞开发工作流程。
+
+```yaml
+# ✅ 快速的操作
+action:
+  type: "format"
+  formatter: "prettier"
+
+# ❌ 耗时的操作
+action:
+  type: "run_command"
+  command: "npm run build && npm run test && npm run deploy"
+```
+
+### 4. 清晰的通知
+
+提供清晰的成功和失败通知。
+
+```yaml
+notification:
+  on_success: "✅ 测试通过"
+  on_failure: "❌ 测试失败，请检查错误"
+```
+
+### 5. 错误处理
+
+定义 Hook 失败时的处理方式。
+
+```yaml
+on_error:
+  action: "notify"  # notify, ignore, abort
+  message: "Hook 执行失败"
+```
+
+## 常见问题
+
+### Q: Hook 会影响性能吗？
+
+**A:** 如果 Hook 执行时间过长，可能会影响性能。建议为 Hook 设置合理的超时时间，并避免过于频繁的触发。
+
+### Q: 如何调试 Hook？
+
+**A:** 查看 Claude Code 的输出面板，可以看到 Hook 的执行日志。
+
+### Q: 可以在 Hook 中使用环境变量吗？
+
+**A:** 可以。在 Hook 配置中使用 `${ENV_VAR_NAME}` 来引用环境变量。
+
+### Q: 如何禁用所有 Hooks？
+
+**A:** 在设置中搜索"Kiro Hooks"，然后禁用所有 Hooks。
+
+## 下一步
+
+现在你已经了解了 Agent Hooks，可以继续学习：
+
+- [Steering 配置](/03-advanced/steering) - 为团队定制 AI 行为
+- [MCP 集成](/03-advanced/mcp) - 连接外部工具和服务
+
+## 小结
+
+Agent Hooks 是一个强大的自动化工具，可以帮助你：
+
+- ✅ 自动化重复性的开发任务
+- ✅ 提高代码质量和一致性
+- ✅ 减少手动工作
+- ✅ 提高开发效率
+- ✅ 确保最佳实践的遵循
+
+通过有效使用 Hooks，你可以创建一个高效的、自动化的开发工作流程。
