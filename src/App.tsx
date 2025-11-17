@@ -10,7 +10,7 @@ import NotFoundPage from './pages/NotFoundPage'
 function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter basename="/claude-code-tutorial-zh">
         <Routes>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<HomePage />} />
